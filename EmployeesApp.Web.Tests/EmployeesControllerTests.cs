@@ -39,7 +39,7 @@ public class EmployeesControllerTests
     public void Create_WithValidViewModel_ReturnsViewResult(string email, string name, int botcheck, bool expected)
     {
         // Arrange
-        var viewModel = new CreateVM { Email = email, Name = name, BotCheck = botcheck };
+        var viewModel = new CreateVM { Email = email, Name = name, BotCheck = botcheck, Salary = 3 };
         var mockService = new Mock<IEmployeeService>();
         var controller = new EmployeesController(mockService.Object);
 
@@ -73,7 +73,8 @@ public class EmployeesControllerTests
         {
             Name = name,
             Email = email,
-            BotCheck = check
+            BotCheck = check,
+            Salary = 3
         };
 
         var context = new ValidationContext(model);
