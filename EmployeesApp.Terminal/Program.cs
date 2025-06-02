@@ -1,4 +1,5 @@
 ﻿using EmployeesApp.Application.Employees.Services;
+using EmployeesApp.Domain.Entities;
 using EmployeesApp.Infrastructure.Persistance;
 using EmployeesApp.Infrastructure.Persistance.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -14,9 +15,9 @@ internal class Program
     static void Main(string[] args)
     {
         var configuration = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: false)
-    .Build();
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false)
+        .Build();
         string connectionString = configuration.GetConnectionString("DefaultConnection");
 
         // Use the connection string
@@ -30,8 +31,9 @@ internal class Program
 
         EmployeeRepository employeeRepository = new(context);
         EmployeeService employeeService = new(employeeRepository);
+
         ListAllEmployees(employeeService);
-        // ListEmployee(562);
+        ListEmployee(1, employeeService);
     }
 
     private static void ListAllEmployees(EmployeeService employeeService)
@@ -42,19 +44,19 @@ internal class Program
         Console.WriteLine("------------------------------");
     }
 
-    //private static void ListEmployee(int employeeID)
-    //{
-    //    Employee? employee;
+    private static void ListEmployee(int employeeID, EmployeeService employeeService)
+    {
+        Employee? employee;
 
-    //    try
-    //    {
-    //        employee = employeeService.GetById(employeeID);
-    //        Console.WriteLine($"{employee?.Name}: {employee?.Email}");
-    //        Console.WriteLine("------------------------------");
-    //    }
-    //    catch (ArgumentException e)
-    //    {
-    //        Console.WriteLine($"EXCEPTION: {e.Message}");
-    //    }
-    //}
+        try
+        {
+            employee = employeeService.GetById(employeeID);
+            Console.WriteLine($"{employee?.Name}: {employee?.Email}");
+            Console.WriteLine("------------------------------");
+        }
+        catch (ArgumentException e)
+        {
+            Console.WriteLine($"EXCEPTION: {e.Message}");
+        }
+    }
 }
