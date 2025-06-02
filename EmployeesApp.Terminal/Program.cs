@@ -1,42 +1,37 @@
-﻿using EmployeesApp.Application.Employees.Services;
+﻿using EmployeesApp.Application.Employees.Interfaces;
+using EmployeesApp.Application.Employees.Services;
 using EmployeesApp.Domain.Entities;
 using EmployeesApp.Infrastructure.Persistance;
 using EmployeesApp.Infrastructure.Persistance.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 
 namespace EmployeesApp.Terminal;
 internal class Program
 {
-    // static readonly EmployeeService employeeService = new(new EmployeeRepository();
-
-
     static void Main(string[] args)
     {
         var configuration = new ConfigurationBuilder()
         .SetBasePath(Directory.GetCurrentDirectory())
         .AddJsonFile("appsettings.json", optional: false)
         .Build();
-        string connectionString = configuration.GetConnectionString("DefaultConnection");
 
-        // Use the connection string
-        var options = new DbContextOptionsBuilder<ApplicationContext>()
-            .UseSqlServer(connectionString)
-            .Options;
+        var services = new ServiceCollection();
+        services.AddDbContext<ApplicationContext>(options =>
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+        services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+        services.AddScoped<IEmployeeService, EmployeeService>();
 
-        using ApplicationContext context = new(new DbContextOptionsBuilder<ApplicationContext>()
-            .UseSqlServer(connectionString)
-            .Options);
-
-        EmployeeRepository employeeRepository = new(context);
-        EmployeeService employeeService = new(employeeRepository);
+        using var serviceProvider = services.BuildServiceProvider();
+        var employeeService = serviceProvider.GetRequiredService<IEmployeeService>();
 
         ListAllEmployees(employeeService);
         ListEmployee(1, employeeService);
     }
 
-    private static void ListAllEmployees(EmployeeService employeeService)
+    private static void ListAllEmployees(IEmployeeService employeeService)
     {
         foreach (var item in employeeService.GetAll())
             Console.WriteLine(item.Name);
@@ -44,7 +39,7 @@ internal class Program
         Console.WriteLine("------------------------------");
     }
 
-    private static void ListEmployee(int employeeID, EmployeeService employeeService)
+    private static void ListEmployee(int employeeID, IEmployeeService employeeService)
     {
         Employee? employee;
 
